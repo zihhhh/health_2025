@@ -66,8 +66,9 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 cnx = mysql.connector.connect(user='user_80956', password='m+c3zHYVaFBSz#w6', host='140.114.88.137', port='3306', database='mhealth_with_line')
 cursor = cnx.cursor()
 
-#gemini初始化設定
-GOOGLE_API_KEY = os.getenv('GEMINI_KEY')
+#gemini初始化設定 
+GOOGLE_API_KEY = os.getenv('GEMINI_KEY') # 從環境變數獲取 API 金鑰
+genai.configure(api_key=GOOGLE_API_KEY) # 設定 Gemini API Key
 
 
 app = Flask(__name__)
@@ -375,6 +376,12 @@ def handle_text_message(event):
             TextSendMessage(text='請輸入您今日食用的食物以及飲水量 (如:培根蛋餅、牛肉麵、排骨便當、飲水量2000公升)：') 
             ])
         status = 24 
+   
+    elif text =="gemini":
+        line_bot_api.reply_message(event.reply_token, [
+            TextSendMessage(text='請輸入文字') 
+            ])
+        status = 25     
         
     elif text =="空氣品質查詢":
         message = TextSendMessage(
@@ -1016,6 +1023,22 @@ def handle_text_message(event):
             line_bot_api.reply_message(event.reply_token,TextSendMessage(text=content.strip()))
             status = 0
                   
+        elif status == 25:     #gemini      
+            prompt='你是一位助理，使用繁體中文回答'
+            print(prompt)
+            
+            user_input = event.message.text  # 取得用戶輸入
+            model = genai.GenerativeModel("gemini-pro")  # 指定 Gemini 模型
+            response = model.generate_content([prompt, user_input])  # 生成回應
+            
+            if response and response.text:
+                content = response.text.strip()
+            else:
+                content = "抱歉，我無法提供回應。"
+                
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=content))
+            status = 0
+        
         elif status == 3: # water intake
             if not isNum(text):
                 line_bot_api.reply_message(event.reply_token, TextSendMessage(text='格式錯誤，請重新輸入'))
