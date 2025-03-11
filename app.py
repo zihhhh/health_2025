@@ -1026,9 +1026,10 @@ def handle_text_message(event):
         elif status == 25:     #gemini      
             prompt='你是一位助理，使用繁體中文回答'
             print(prompt)
-            
             user_input = event.message.text  # 取得用戶輸入
-            model = genai.GenerativeModel("gemini-pro")  # 指定 Gemini 模型
+            print(user_input)
+            model = genai.GenerativeModel("gemini-1.5-flash")  # 指定 Gemini 模型
+            print("Gemini 模型指定成功，準備生成回應")
             response = model.generate_content([prompt, user_input])  # 生成回應
             
             if response and response.text:
