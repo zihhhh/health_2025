@@ -1030,13 +1030,10 @@ def handle_text_message(event):
             print(user_input)
             model = genai.GenerativeModel("gemini-1.5-flash")  # 指定 Gemini 模型
             print("Gemini 模型指定成功，準備生成回應")
-            #response = model.generate_content([prompt, user_input])  # 生成回應
-            response = model.generate_content([prompt, user_input], generation_config={"candidate_count": 3})  # 生成多個回應
+            response = model.generate_content([prompt, user_input])  # 生成回應
             
-            #if response and response.text:
-                #content = response.text.strip()
-            if response and response.candidates:
-                content = "\n\n".join([candidate.text.strip() for candidate in response.candidates])
+            if response and response.text:
+                content = response.text.strip()
             else:
                 content = "抱歉，我無法提供回應。"
                 
