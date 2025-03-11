@@ -55,6 +55,7 @@ from bs4 import BeautifulSoup
 from urllib import parse
 #from openai import OpenAI
 import openai
+import google.generativeai as genai
 '''
 client = OpenAI(
   api_key=os.environ['OPENAI_API_KEY'],  # this is also the default, it can be omitted
@@ -64,6 +65,10 @@ client = OpenAI(
 openai.api_key = os.getenv('OPENAI_API_KEY')
 cnx = mysql.connector.connect(user='user_80956', password='m+c3zHYVaFBSz#w6', host='140.114.88.137', port='3306', database='mhealth_with_line')
 cursor = cnx.cursor()
+
+#gemini初始化設定
+GOOGLE_API_KEY = os.getenv('GEMINI_KEY')
+
 
 app = Flask(__name__)
 
