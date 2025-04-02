@@ -381,7 +381,13 @@ def handle_text_message(event):
         line_bot_api.reply_message(event.reply_token, [
             TextSendMessage(text='請輸入文字') 
             ])
-        status = 25     
+        status = 25 
+    
+    elif text =="gemini2":
+        line_bot_api.reply_message(event.reply_token, [
+            TextSendMessage(text='請輸入文字') 
+            ])
+        status = 26     
         
     elif text =="空氣品質查詢":
         message = TextSendMessage(
@@ -1024,19 +1030,29 @@ def handle_text_message(event):
             status = 0
                   
         elif status == 25:     #gemini      
-            data = {'lineID' : event.source.user_id}
-            response = requests.post(config.PHP_SERVER+'mhealth/disease/queryUserDisease.php', data = data)
-            userDiseaseList = {item['disease'] for item in json.loads(response.text)}
-            DiseaseList = ['糖尿病', '心臟病', '高血壓', '下腹突出']
-            # 使用集合運算符快速檢查兩個列表的相等元素
-            disease = [int(disease_item in userDiseaseList) for disease_item in DiseaseList]
-            # 過濾掉為 0 的元素，並用逗號分隔拼接成字符串
-            dis_ch = '、 '.join(d for d, flag in zip(DiseaseList, disease) if flag == 1)
-            # 如果 dis_ch 為空，則表示沒有疾病，將其設置為 '無'
-            dis = dis_ch if dis_ch else '無特殊疾病'
-           
-            content_gpt='擁有'+ dis +'請給予以下身體狀況建議，限200字以內，並使用繁體中文回答'
+            content_gpt='你是一位專門計算水足跡的助理，根據以下用戶的當日飲食狀況及飲水量，估算用戶的每日水足跡，並提供節水建議。請直接提供每種食物的總水足跡，不用細分每種食物的組成。限200字以內，並使用繁體中文回答'
+            #'擁有'+ dis +'請給予以下身體狀況建議，限200字以內，並使用繁體中文回答'
             #'請根據以下身體狀況:'+ dis + '，給予以下食物食用順序的建議，限200字以內，並使用繁體中文回答'
+            print(content_gpt)
+            
+            prompt=content_gpt       #'你是一位助理，使用繁體中文回答'
+            print(prompt)
+            user_input = event.message.text  # 取得用戶輸入
+            print(user_input)
+            model = genai.GenerativeModel("gemini-1.5-flash")  # 指定 Gemini 模型
+            print("Gemini 模型指定成功，準備生成回應")
+            response = model.generate_content([prompt, user_input])  # 生成回應
+            
+            if response and response.text:
+                content = response.text.strip()
+            else:
+                content = "抱歉，我無法提供回應。"
+                
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=content))
+            status = 0
+
+        elif status == 26:     #gemini      
+            content_gpt='以下為吃一餐的食材與消耗的碳排放量，請判斷該碳排放量的多寡，並給予關於在食材的選擇上減少碳排量的評論與建議，限100字以內'
             print(content_gpt)
             
             prompt=content_gpt       #'你是一位助理，使用繁體中文回答'
